@@ -1,0 +1,39 @@
+services:
+  nginx:
+    image: nginx:1.29.3
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx
+    environment:
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+    ports:
+      - 80:80
+      - 443:443/tcp
+    privileged: true
+    networks:
+      deploy_network:
+        ipv4_address: 192.168.1.60
+
+  xray:
+    image: ghcr.io/xtls/xray-core:25.3.6
+    container_name: xray
+    restart: always
+    volumes:
+      - ./xray/config.json:/etc/xray/config.json
+    privileged: true
+    sysctls:
+      - net.ipv4.tcp_congestion_control=bbr
+    networks:
+      deploy_network:
+        ipv4_address: 192.168.1.70
+
+
+networks:
+  deploy_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "192.168.1.0/24"
+
